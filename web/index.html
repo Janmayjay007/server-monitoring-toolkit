@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Monitoring Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="brand">
+        <span class="live-dot" id="live-indicator"></span>
+        <h1>Server Monitor</h1>
+        <span class="version-tag">v2.0</span>
+      </div>
+
+      <div class="header-meta">
+        <div class="meta-pill" id="host-pill">
+          <span class="meta-label">HOST:</span>
+          <span class="meta-value" id="hostname-val">Detecting...</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">LAST UPDATED:</span>
+          <span class="meta-value" id="timestamp-val">--:--:--</span>
+        </div>
+        <button id="refresh-btn" class="action-btn" title="Refresh now">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Metrics Grid -->
+    <main class="grid">
+      <!-- CPU & Load Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>System & Load</h2>
+          <span class="badge badge-neutral" id="os-badge">Linux</span>
+        </div>
+
+        <div class="metric-row">
+          <div class="metric-stat">
+            <span class="label">CPU Cores</span>
+            <span class="value" id="cpu-cores">--</span>
+          </div>
+          <div class="metric-stat">
+            <span class="label">Uptime</span>
+            <span class="value" id="uptime-val">--</span>
+          </div>
+        </div>
+
+        <div class="load-section">
+          <span class="label">Load Averages (1m, 5m, 15m)</span>
+          <div class="load-pills">
+            <span class="load-pill" id="load-1m">--</span>
+            <span class="load-pill" id="load-5m">--</span>
+            <span class="load-pill" id="load-15m">--</span>
+          </div>
+        </div>
+
+        <div class="status-footer">
+          <span class="label">CPU Health</span>
+          <span class="badge badge-success" id="cpu-status">Normal Load</span>
+        </div>
+      </section>
+
+      <!-- Memory Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Memory (RAM)</h2>
+          <span class="badge badge-success" id="mem-status-badge">Healthy</span>
+        </div>
+
+        <div class="gauge-container">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill fill-green" id="mem-bar" style="width: 0%;"></div>
+          </div>
+          <div class="gauge-meta">
+            <span class="gauge-pct" id="mem-pct">0%</span>
+            <span class="gauge-sub" id="mem-summary">0 MB / 0 MB</span>
+          </div>
+        </div>
+
+        <div class="metric-row details-row">
+          <div class="metric-stat">
+            <span class="label">Used RAM</span>
+            <span class="value" id="mem-used">--</span>
+          </div>
+          <div class="metric-stat">
+            <span class="label">Available</span>
+            <span class="value" id="mem-free">--</span>
+          </div>
+          <div class="metric-stat">
+            <span class="label">Total</span>
+            <span class="value" id="mem-total">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disk Storage Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Disk Filesystem ( / )</h2>
+          <span class="badge badge-success" id="disk-status-badge">Healthy</span>
+        </div>
+
+        <div class="gauge-container">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill fill-green" id="disk-bar" style="width: 0%;"></div>
+          </div>
+          <div class="gauge-meta">
+            <span class="gauge-pct" id="disk-pct">0%</span>
+            <span class="gauge-sub" id="disk-summary">0 GB / 0 GB</span>
+          </div>
+        </div>
+
+        <div class="metric-row details-row">
+          <div class="metric-stat">
+            <span class="label">Used Space</span>
+            <span class="value" id="disk-used">--</span>
+          </div>
+          <div class="metric-stat">
+            <span class="label">Free Space</span>
+            <span class="value" id="disk-free">--</span>
+          </div>
+          <div class="metric-stat">
+            <span class="label">Capacity</span>
+            <span class="value" id="disk-total">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Status Card -->
+      <section class="card full-width">
+        <div class="card-header">
+          <h2>Core Services Status</h2>
+          <span class="label">Live Process & Service Daemon Health</span>
+        </div>
+
+        <div class="services-grid" id="services-container">
+          <!-- Dynamically injected service cards -->
+          <div class="service-item">
+            <span class="service-name">nginx</span>
+            <span class="badge badge-neutral">Checking...</span>
+          </div>
+          <div class="service-item">
+            <span class="service-name">ssh</span>
+            <span class="badge badge-neutral">Checking...</span>
+          </div>
+          <div class="service-item">
+            <span class="service-name">cron</span>
+            <span class="badge badge-neutral">Checking...</span>
+          </div>
+          <div class="service-item">
+            <span class="service-name">docker</span>
+            <span class="badge badge-neutral">Checking...</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Server Monitoring Toolkit • <a href="https://github.com/Janmayjay007/server-monitoring-toolkit" target="_blank" rel="noopener">GitHub Repository</a></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 520" width="100%" height="100%">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e222b" />
+      <stop offset="100%" stop-color="#14171d" />
+    </linearGradient>
+  </defs>
+
+  <style>
+    .cmd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13.5px; fill: #f1f5f9; font-weight: 600; }
+    .header { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; fill: #38bdf8; font-weight: bold; }
+    .text { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; fill: #cbd5e1; }
+    .muted { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; fill: #64748b; }
+    .green { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; fill: #34d399; font-weight: bold; }
+    .red { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; fill: #f87171; font-weight: bold; }
+    .prompt { fill: #38bdf8; font-weight: bold; }
+  </style>
+
+  <!-- Window Container -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="20" width="800" height="475" rx="10" fill="url(#bg)" stroke="#334155" stroke-width="1" />
+  </g>
+
+  <!-- Window Title Bar -->
+  <path d="M 20 30 Q 20 20 30 20 L 810 20 Q 820 20 820 30 L 820 54 L 20 54 Z" fill="#181b22" />
+  <line x1="20" y1="54" x2="820" y2="54" stroke="#2a303c" stroke-width="1" />
+
+  <!-- Window Controls -->
+  <circle cx="42" cy="37" r="6" fill="#ff5f56" />
+  <circle cx="62" cy="37" r="6" fill="#ffbd2e" />
+  <circle cx="82" cy="37" r="6" fill="#27c93f" />
+
+  <!-- Window Title -->
+  <text x="420" y="41" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" fill="#94a3b8" font-weight="500">
+    jatin@server: ~/server-monitoring-toolkit
+  </text>
+
+  <!-- Terminal Content -->
+  <g transform="translate(42, 84)">
+    <!-- Command Prompt -->
+    <text x="0" y="0" class="cmd">
+      <tspan class="prompt">$ </tspan>./monitor.sh all
+    </text>
+
+    <!-- System & Load -->
+    <text x="0" y="26" class="header">:: System &amp; Load</text>
+    <text x="14" y="46" class="text">OS:      Ubuntu 22.04.4 LTS (Linux 5.15.0-generic)</text>
+    <text x="14" y="66" class="text">Cores:   4</text>
+    <text x="14" y="86" class="text">Load:    0.24 0.31 0.28 (1m, 5m, 15m)</text>
+    <text x="14" y="106" class="text">Uptime:  18 days, 4 hours</text>
+
+    <!-- Disk Usage -->
+    <text x="0" y="138" class="header">:: Disk Usage</text>
+    <text x="14" y="158" class="text">Mount:   / (/dev/sda1)</text>
+    <text x="14" y="178" class="text">Space:   18G / 80G (58G free)</text>
+    <text x="14" y="198" class="text">Usage:   [<tspan fill="#34d399">######</tspan><tspan fill="#475569">--------------</tspan>]  28%</text>
+    <text x="14" y="218" class="text">Status:  <tspan class="green">[OK]</tspan> Disk space looks good.</text>
+
+    <!-- Memory -->
+    <text x="0" y="250" class="header">:: Memory</text>
+    <text x="14" y="270" class="text">RAM:     2340MB / 7920MB (5580MB available)</text>
+    <text x="14" y="290" class="text">Usage:   [<tspan fill="#34d399">######</tspan><tspan fill="#475569">--------------</tspan>]  29%</text>
+    <text x="14" y="310" class="text">Status:  <tspan class="green">[OK]</tspan> Memory is healthy.</text>
+
+    <!-- Services -->
+    <text x="0" y="342" class="header">:: Services</text>
+    <text x="14" y="360" class="muted">SERVICE        STATUS       DETAILS</text>
+    <text x="14" y="372" class="muted">------------------------------------</text>
+    <text x="14" y="390" class="text">nginx          <tspan class="green">[ACTIVE]</tspan>     running</text>
+    <text x="14" y="406" class="text">ssh            <tspan class="green">[ACTIVE]</tspan>     running</text>
+    <text x="14" y="422" class="text">cron           <tspan class="green">[ACTIVE]</tspan>     running</text>
+    <text x="14" y="438" class="text">docker         <tspan class="green">[ACTIVE]</tspan>     running</text>
+  </g>
+</svg>

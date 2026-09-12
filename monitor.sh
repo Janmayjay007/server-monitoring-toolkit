@@ -264,6 +264,19 @@ watch_mode() {
     done
 }
 
+start_web() {
+    local port="${1:-8080}"
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "Error: python3 is required to run the web dashboard." >&2
+        return 1
+    fi
+
+    python3 "$script_dir/web/server.py" "$port"
+}
+
 interactive_menu() {
     while true; do
         clear 2>/dev/null || true
@@ -275,9 +288,10 @@ interactive_menu() {
         echo "  4) Check CPU & system load"
         echo "  5) Run all checks"
         echo "  6) Watch mode (live refresh)"
+        echo "  7) Launch web dashboard"
         echo "  q) Quit"
         echo ""
-        printf "Select [1-6, q]: "
+        printf "Select [1-7, q]: "
         read -r opt
 
         case "$opt" in
@@ -290,6 +304,11 @@ interactive_menu() {
                 printf "Refresh interval in seconds [default: 2]: "
                 read -r sec
                 watch_mode "${sec:-2}"
+                ;;
+            7)
+                printf "Port number [default: 8080]: "
+                read -r port
+                start_web "${port:-8080}"
                 ;;
             q|Q|exit)
                 echo "Bye."
@@ -317,6 +336,7 @@ show_help() {
     echo "  services     Check service status (nginx, ssh, cron, docker)"
     echo "  system       Check CPU load and uptime"
     echo "  watch [N]    Live refresh every N seconds (default: 2)"
+    echo "  web [PORT]   Start web dashboard (default port: 8080)"
     echo "  help         Show this message"
     echo ""
     echo "Environment variables:"
@@ -346,6 +366,10 @@ case "$1" in
     watch|-w)
         shift
         watch_mode "${1:-2}"
+        ;;
+    web)
+        shift
+        start_web "$@"
         ;;
     -h|--help|help) show_help ;;
     *)

@@ -1,8 +1,10 @@
 # server-monitoring-toolkit
 
-A lightweight Bash script to check server health in one place. Instead of SSHing into a box and running `df -h`, `free -m`, `uptime`, and checking `systemctl` individually, this pulls the key metrics into a single readable view.
+A lightweight Bash & Web monitoring toolkit to check server health in one place. Instead of SSHing into a box and manually running `df -h`, `free -m`, `uptime`, and checking `systemctl` individually, this pulls the key metrics into a single view — available either in your terminal or via a local web dashboard.
 
 Works on Linux (systemd / SysV) and macOS.
+
+![Server Monitoring Toolkit](assets/terminal-preview.svg)
 
 ## Quick Start
 
@@ -13,7 +15,7 @@ chmod +x monitor.sh
 ./monitor.sh
 ```
 
-Running `./monitor.sh` without arguments launches an interactive menu:
+Running `./monitor.sh` without arguments launches an interactive terminal menu:
 
 ```text
 Server Health Monitor (v2.0)
@@ -26,14 +28,29 @@ Choose an option:
   4) Check CPU & system load
   5) Run all checks
   6) Watch mode (live refresh)
+  7) Launch web dashboard
   q) Quit
 
-Select [1-6, q]:
+Select [1-7, q]:
 ```
+
+## Web Dashboard
+
+For visual monitoring in a browser, start the built-in web dashboard (requires Python 3, zero external packages):
+
+```bash
+./monitor.sh web        # Starts dashboard at http://localhost:8080
+./monitor.sh web 3000   # Use custom port 3000
+```
+
+The web dashboard provides:
+- Live gauges for CPU Load, RAM allocation, and Disk capacity.
+- Real-time daemon status for background services (`nginx`, `ssh`, `cron`, `docker`).
+- Auto-polling every 3 seconds with a live status indicator.
 
 ## CLI Usage
 
-You can also bypass the menu and pass subcommands directly:
+You can also bypass the menu and pass subcommands directly for scripts or quick checks:
 
 ```bash
 ./monitor.sh all        # Run everything in one summary
@@ -41,10 +58,10 @@ You can also bypass the menu and pass subcommands directly:
 ./monitor.sh memory     # Check RAM utilization
 ./monitor.sh services   # Check nginx, ssh, cron, docker
 ./monitor.sh system     # Check OS, CPU cores, load average, uptime
-./monitor.sh watch 2    # Live dashboard that refreshes every 2s
+./monitor.sh watch 2    # Live terminal dashboard (refreshes every 2s)
 ```
 
-### Example Output
+### Example CLI Output
 
 ```text
 :: System & Load
@@ -75,7 +92,7 @@ You can also bypass the menu and pass subcommands directly:
 
 ## Checking Custom Services
 
-To check specific services instead of the default list, pass them as arguments:
+To check specific services instead of the defaults, pass them as arguments:
 
 ```bash
 ./monitor.sh services postgresql redis apache2
@@ -92,7 +109,12 @@ DISK_THRESHOLD=90 MEM_THRESHOLD=80 ./monitor.sh all
 
 ## How It Works
 
-- **Disk**: Uses `df -P /` so output doesn't wrap on long device names, then parses used/free space and draws a text progress bar.
+- **Disk**: Uses `df -P /` so output doesn't wrap on long device names, parses used/free space, and draws a clean progress bar.
 - **Memory**: Reads `/proc/meminfo` or `free` on Linux (accounting for buffers and cache). On macOS, it reads `vm_stat` and `sysctl` to calculate active vs available memory.
 - **Services**: Uses `systemctl is-active --quiet` if systemd is available. Falls back to `service` (SysV) or process scanning (`pgrep`) if running inside a minimal container or macOS.
 - **CPU / Load**: Parses `uptime` load averages and compares 1-minute load against the available core count.
+- **Web API**: Built-in HTTP server (`web/server.py`) serving static assets and exposing `/api/stats` as JSON.
+
+## License
+
+MIT
