@@ -1,168 +1,98 @@
-# 🚀 Server Monitoring Toolkit
+# server-monitoring-toolkit
 
-<div align="center">
+A lightweight Bash script to check server health in one place. Instead of SSHing into a box and running `df -h`, `free -m`, `uptime`, and checking `systemctl` individually, this pulls the key metrics into a single readable view.
 
-[![Bash 3.2+](https://img.shields.io/badge/Bash-3.2%2B-4EAA25.svg?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-0078D6.svg?logo=linux&logoColor=white)](#compatibility)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/)
+Works on Linux (systemd / SysV) and macOS.
 
-**An interactive, lightweight terminal health & diagnostics CLI for modern servers and dev workstations.**
+## Quick Start
 
-[Features](#-key-features) •
-[Quick Start](#-quick-start) •
-[Interactive TUI](#-interactive-mode) •
-[CLI Automation](#-cli-usage--flags) •
-[Architecture](#-architecture--design)
+Make the script executable and run it:
 
-</div>
-
----
-
-## 🖥️ Terminal Showcase
-
-### Interactive Terminal Menu
-```text
-  ___ ___ _____   _____ ___   __  __  ___  _  _ ___ _____ ___  ___ 
- / __| __| _ \ \ / / __| _ \ |  \/  |/ _ \| \| |_ _|_   _/ _ \| _ \
- \__ \ _||   /\ V /| _||   / | |\/| | (_) | .` || |  | || (_) |   /
- |___/___|_|_\ \_/ |___|_|_\ |_|  |_|\___/|_|\_|___| |_| \___/|_|_\
-
- Server Monitoring Toolkit v2.0.0
- Host: prod-web-01.internal  •  Time: 2026-09-13 01:42:00
-─────────────────────────────────────────────────────────────
- Select a diagnostic option:
-
-   [1] 💾 Check Disk Usage (Visual gauge & threshold)
-   [2] 🧠 Check Memory & Swap (RAM utilization)
-   [3] ⚙️  Check Service Health (Nginx, SSH, Cron, etc.)
-   [4] ⚡ Check System & CPU Load (Uptime, OS, Cores)
-   [5] 📊 Run Complete Health Audit (All checks in one)
-   [6] ⏱️  Live Dashboard Watch Mode (Auto-refresh)
-   [7] 🛠️  Configure Alert Thresholds
-   [q] 🚪 Exit Toolkit
-
-─────────────────────────────────────────────────────────────
-Enter choice [1-7, q]: 
-```
-
-### Visual Diagnostics Output
-```text
-▸ Disk Filesystem Usage
-─────────────────────────────────────────────────────────────
-  Mount Point:   / (/dev/nvme0n1p1)
-  Capacity:      18 GB used / 80 GB total (59 GB free)
-  Utilization:   [█████░░░░░░░░░░░░░░░░░░░]  23%
-
-  Status: [  OK  ] Disk filesystem health is normal.
-
-▸ System Memory & Swap
-─────────────────────────────────────────────────────────────
-  Physical RAM:  2140 MB used / 7920 MB total (5780 MB free)
-  Utilization:   [██████░░░░░░░░░░░░░░░░░░]  27%
-
-  Status: [  OK  ] System memory allocation is healthy.
-
-▸ Key Service Health Status
-─────────────────────────────────────────────────────────────
-  Engine: systemd (systemctl)
-
-  SERVICE          STATUS           HEALTH
-  ──────────────────────────────────────────
-  nginx            [ ACTIVE ]     Running
-  ssh              [ ACTIVE ]     Running
-  cron             [ ACTIVE ]     Running
-  docker           [ ACTIVE ]     Running
-```
-
----
-
-## ✨ Key Features
-
-- 🎮 **Interactive TUI Menu**: Launch with zero arguments to access an intuitive menu with colored indicators and on-demand diagnostics.
-- 📊 **Visual ASCII Progress Bars**: Color-graded capacity meters (🟢 Green for healthy, 🟡 Amber for warning, 🔴 Crimson for critical).
-- 🧠 **Cross-Platform Memory Inspection**: Deep inspection across Linux (`/proc/meminfo` and `free`) and macOS Darwin (`vm_stat` / `sysctl`).
-- ⚙️ **Multi-Engine Service Auditing**: Automatically inspects system services via `systemctl` (systemd), `service` (SysV), or process table inspection.
-- ⚡ **CPU & System Load Intelligence**: Checks uptime, OS release, CPU cores, and alerts if 1-minute load exceeds physical processor capacity.
-- ⏱️ **Live Watch Dashboard**: Real-time auto-refreshing monitor (`--watch`) for stress testing and monitoring live incidents.
-- 🤖 **CI/CD & Scripting Ready**: Supports standard subcommands and silent non-interactive piping for cron jobs or automated alert webhooks.
-
----
-
-## ⚡ Quick Start
-
-### 1. Clone & Permissions
 ```bash
-git clone https://github.com/your-username/server-monitoring-toolkit.git
-cd server-monitoring-toolkit
 chmod +x monitor.sh
-```
-
-### 2. Launch Interactive Menu
-```bash
 ./monitor.sh
 ```
 
----
+Running `./monitor.sh` without arguments launches an interactive menu:
 
-## 💻 CLI Usage & Flags
+```text
+Server Health Monitor (v2.0)
+Host: prod-web-01 | Date: 2026-09-13 02:00:15
+--------------------------------------------------
+Choose an option:
+  1) Check disk usage
+  2) Check memory (RAM)
+  3) Check services
+  4) Check CPU & system load
+  5) Run all checks
+  6) Watch mode (live refresh)
+  q) Quit
 
-For automation, cron jobs, or headless servers, invoke `monitor.sh` directly with subcommands:
-
-| Subcommand | Description | Example |
-| :--- | :--- | :--- |
-| *(none)* / `-i` | Launch the full interactive TUI menu | `./monitor.sh` |
-| `all` | Execute all diagnostics sequentially in one report | `./monitor.sh all` |
-| `disk` | Check root filesystem utilization against threshold | `./monitor.sh disk` |
-| `memory` / `mem` | Check RAM utilization and memory pressure | `./monitor.sh memory` |
-| `services` / `svc` | Inspect background system services | `./monitor.sh services` |
-| `system` / `cpu` | View OS info, CPU cores, uptime, and load averages | `./monitor.sh system` |
-| `-w`, `--watch [N]` | Run auto-refreshing live dashboard (default: 2s) | `./monitor.sh -w 5` |
-| `-t`, `--threshold [N]` | Override disk alert threshold percentage (default: 85%) | `./monitor.sh disk -t 90` |
-| `-h`, `--help` | Display usage manual and exit | `./monitor.sh --help` |
-
----
-
-## 🛠️ Configuration & Environment Variables
-
-You can customize operational defaults via environment variables:
-
-```bash
-# Set custom disk and memory alert thresholds
-export DISK_THRESHOLD=90
-export MEM_THRESHOLD=80
-
-./monitor.sh all
+Select [1-6, q]:
 ```
 
-To check custom services on demand:
+## CLI Usage
+
+You can also bypass the menu and pass subcommands directly:
+
 ```bash
-./monitor.sh services postgresql redis-server nginx
+./monitor.sh all        # Run everything in one summary
+./monitor.sh disk       # Check root partition usage
+./monitor.sh memory     # Check RAM utilization
+./monitor.sh services   # Check nginx, ssh, cron, docker
+./monitor.sh system     # Check OS, CPU cores, load average, uptime
+./monitor.sh watch 2    # Live dashboard that refreshes every 2s
 ```
 
----
+### Example Output
 
-## 🏗️ Architecture & Design
+```text
+:: System & Load
+  OS:      Ubuntu 22.04 LTS
+  Cores:   4
+  Load:    0.35 0.42 0.38 (1m, 5m, 15m)
+  Uptime:  14 days, 3 hours
 
-- **POSIX Portability (`df -P`)**: Uses POSIX-standard `df -P /` to prevent line-wrapping errors on long volume identifiers or LVM configurations.
-- **Bash 3.2+ Universal Compatibility**: Implemented without Bash 4+ associative arrays to ensure zero-dependency execution on both default macOS (`/bin/bash`) and Linux distros.
-- **ANSI Color Protection**: Automatically detects whether stdout is an interactive TTY (`[ -t 1 ]`); disables ANSI escape codes when piping to files or logging systems.
-- **Defensive Error Handling**: Uses proper variable quoting and non-zero exit codes on failure paths to prevent misleading test results.
+:: Disk Usage
+  Mount:   / (/dev/sda1)
+  Space:   18G / 80G (58G free)
+  Usage:   [#####---------------]  22%
+  Status:  [OK] Disk space looks good.
 
----
+:: Memory
+  RAM:     2140MB / 7920MB (5780MB available)
+  Usage:   [#####---------------]  27%
+  Status:  [OK] Memory is healthy.
 
-## 🤝 Contributing
+:: Services
+  SERVICE        STATUS       DETAILS
+  ------------------------------------
+  nginx          [ACTIVE]     running
+  ssh            [ACTIVE]     running
+  cron           [ACTIVE]     running
+  docker         [ACTIVE]     running
+```
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/).
+## Checking Custom Services
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+To check specific services instead of the default list, pass them as arguments:
 
----
+```bash
+./monitor.sh services postgresql redis apache2
+```
 
-## 📄 License
+## Custom Thresholds
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Alert thresholds can be adjusted with environment variables:
+
+```bash
+# Warn if disk usage is above 90% or RAM is above 80%
+DISK_THRESHOLD=90 MEM_THRESHOLD=80 ./monitor.sh all
+```
+
+## How It Works
+
+- **Disk**: Uses `df -P /` so output doesn't wrap on long device names, then parses used/free space and draws a text progress bar.
+- **Memory**: Reads `/proc/meminfo` or `free` on Linux (accounting for buffers and cache). On macOS, it reads `vm_stat` and `sysctl` to calculate active vs available memory.
+- **Services**: Uses `systemctl is-active --quiet` if systemd is available. Falls back to `service` (SysV) or process scanning (`pgrep`) if running inside a minimal container or macOS.
+- **CPU / Load**: Parses `uptime` load averages and compares 1-minute load against the available core count.
