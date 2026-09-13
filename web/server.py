@@ -169,6 +169,49 @@ def get_system_info():
     }
 
 
+def get_top_processes(limit=10):
+    try:
+        cmd = ["ps", "-eo", "pid,user,%cpu,%mem,comm"]
+        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore")
+        lines = out.strip().split("\n")
+        procs = []
+        for line in lines[1:]:
+            parts = line.strip().split(None, 4)
+            if len(parts) >= 5:
+                try:
+                    pid = int(parts[0])
+                    user = parts[1]
+                    cpu = float(parts[2])
+                    mem = float(parts[3])
+                    raw_cmd = parts[4].strip()
+                    comm = os.path.basename(raw_cmd) if "/" in raw_cmd else raw_cmd
+                    procs.append({
+                        "pid": pid,
+                        "user": user,
+                        "cpu": cpu,
+                        "mem": mem,
+                        "command": comm or raw_cmd,
+                    })
+                except (ValueError, IndexError):
+                    continue
+
+        top_by_cpu = sorted(procs, key=lambda x: x["cpu"], reverse=True)[:limit]
+        top_by_mem = sorted(procs, key=lambda x: x["mem"], reverse=True)[:limit]
+
+        return {
+            "by_cpu": top_by_cpu,
+            "by_mem": top_by_mem,
+            "total_count": len(procs),
+        }
+    except Exception as e:
+        return {
+            "by_cpu": [],
+            "by_mem": [],
+            "total_count": 0,
+            "error": str(e),
+        }
+
+
 class MonitorHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
@@ -180,6 +223,7 @@ class MonitorHandler(http.server.SimpleHTTPRequestHandler):
                 "disk": get_disk_stats(),
                 "memory": get_memory_stats(),
                 "services": get_services(),
+                "processes": get_top_processes(10),
             }
             body = json.dumps(data).encode("utf-8")
             self.send_response(200)

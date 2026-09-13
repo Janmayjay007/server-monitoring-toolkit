@@ -46,6 +46,7 @@ For visual monitoring in a browser, start the built-in web dashboard (requires P
 The web dashboard provides:
 - Live gauges for CPU Load, RAM allocation, and Disk capacity.
 - Real-time daemon status for background services (`nginx`, `ssh`, `cron`, `docker`).
+- Top Running Processes table with interactive sorting by CPU and Memory usage.
 - Auto-polling every 3 seconds with a live status indicator.
 
 ## CLI Usage

@@ -165,6 +165,48 @@
           </div>
         </div>
       </section>
+
+      <!-- Top Processes Card -->
+      <section class="card full-width" id="processes-card">
+        <div class="card-header">
+          <div class="header-title-group">
+            <h2>Top Running Processes</h2>
+            <span class="badge badge-neutral" id="proc-count-badge">0 Processes</span>
+          </div>
+          <div class="proc-controls">
+            <span class="control-label">Sort by:</span>
+            <div class="segmented-control" role="tablist">
+              <button class="segmented-btn active" id="sort-cpu-btn" role="tab" aria-selected="true" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                CPU Usage
+              </button>
+              <button class="segmented-btn" id="sort-mem-btn" role="tab" aria-selected="false" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                Memory Usage
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="proc-table">
+            <thead>
+              <tr>
+                <th class="col-pid">PID</th>
+                <th class="col-comm">Command / Process</th>
+                <th class="col-user">User</th>
+                <th class="col-cpu">CPU %</th>
+                <th class="col-mem">Memory %</th>
+              </tr>
+            </thead>
+            <tbody id="proc-tbody">
+              <tr>
+                <td colspan="5" class="table-empty">Loading process metrics...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
