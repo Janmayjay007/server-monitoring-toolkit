@@ -1,7 +1,10 @@
 # Shared helpers for the bats tests.
 # shellcheck shell=bash
 
+# MONITOR and SERVER are used by monitor.bats
+# shellcheck disable=SC2034
 MONITOR="$BATS_TEST_DIRNAME/../monitor.sh"
+# shellcheck disable=SC2034
 SERVER="$BATS_TEST_DIRNAME/../web/server.py"
 BG_PIDS=()
 
@@ -12,8 +15,8 @@ free_port() {
 
 # wait_for_port <port>: wait up to 5s for something to listen on 127.0.0.1:<port>
 wait_for_port() {
-    local i
-    for i in $(seq 1 50); do
+    local _
+    for _ in $(seq 1 50); do
         if python3 -c "import socket, sys; socket.create_connection(('127.0.0.1', $1), 0.2)" 2>/dev/null; then
             return 0
         fi
