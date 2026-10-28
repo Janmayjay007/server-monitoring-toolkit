@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck monitor.sh tests/test_helper.bash
+      - name: Python syntax
+        run: python3 -m py_compile web/server.py
+
+  test:
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y bats lsof
+      # bats needs bash 4.1+ so a failing [[ ]] fails the test;
+      # macOS ships bash 3.2, so install a current one for bats.
+      - name: Install bats (macOS)
+        if: runner.os == 'macOS'
+        run: brew install bash bats-core
+      - name: Run tests
+        run: bats tests
