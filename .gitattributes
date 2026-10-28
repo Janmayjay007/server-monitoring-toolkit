@@ -1,0 +1,4 @@
+# Keep the dashboard's styling out of GitHub's language stats so the
+# repository is labelled by its main code (Shell), not by CSS.
+web/*.css linguist-detectable=false
+assets/* linguist-documentation

@@ -4,15 +4,17 @@ Lightweight Web Dashboard Server for Server Monitoring Toolkit
 Zero dependencies - uses standard Python 3 libraries.
 """
 
+import argparse
 import http.server
 import json
 import os
 import platform
+import socket
 import socketserver
 import subprocess
 import sys
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
+LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
 WEB_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -229,7 +231,7 @@ class MonitorHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
-            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(body)
         else:
@@ -240,11 +242,38 @@ class MonitorHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
+class DashboardServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
+class DashboardServer6(DashboardServer):
+    address_family = socket.AF_INET6
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Server Monitoring Toolkit web dashboard")
+    parser.add_argument("port", nargs="?", type=int, default=8080)
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="address to listen on (default: 127.0.0.1, this machine only)",
+    )
+    return parser.parse_args()
+
+
 def main():
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), MonitorHandler) as httpd:
+    args = parse_args()
+    server_class = DashboardServer6 if ":" in args.host else DashboardServer
+    with server_class((args.host, args.port), MonitorHandler) as httpd:
         print(f"\n🚀 Server Monitoring Dashboard active at:")
-        print(f"   http://localhost:{PORT}")
+        print(f"   http://{args.host}:{args.port}")
+        if args.host not in LOOPBACK_HOSTS:
+            print(
+                "\n⚠️  Listening on a network address. The dashboard has no login"
+                "\n   and shows your process list; anyone who can reach this port"
+                "\n   can read it. Prefer an SSH tunnel:"
+                f"\n   ssh -L {args.port}:127.0.0.1:{args.port} <server>"
+            )
         print(f"\nPress Ctrl+C to stop the dashboard.\n")
         try:
             httpd.serve_forever()
